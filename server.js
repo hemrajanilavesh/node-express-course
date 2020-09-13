@@ -13,7 +13,14 @@ app.get('/users', function(request, response) {
         message: 'Successfully got users',
         users: mockUserData
     })
+})
 
+app.get('/users/:id', function(request, response) {
+    response.json({
+        success:true,
+        message: 'Got one User',
+        user: mockUserData[request.params.id]
+    })
 })
 
 
