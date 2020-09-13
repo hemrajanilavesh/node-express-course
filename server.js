@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express();
+const middleware = require('./middleware.js')
 const bodyParser = require('body-parser');
+const { checkTokenExists } = require('./middleware');
 app.use(bodyParser.json());
 const port = 8080
 
@@ -26,10 +28,10 @@ app.get('/users/:id', function(request, response) {
 })
 
 
-app.post('/login',function(req,res){
+app.post('/login',function(request, response){
 	// Typically passwords are encrypted using something like bcrypt before sending to database
-	const username=req.body.username;
-	const password=req.body.password;
+	const username=request.body.username;
+	const password=request.body.password;
 
 	// This should come from the database
 	const mockUsername="billyTheKid";
@@ -37,18 +39,27 @@ app.post('/login',function(req,res){
 
 	if (username===mockUsername && password===mockPassword){
 		// In practice, use JSON web token sign method here to make an encrypted token
-		res.json({
+		response.json({
 			success: true,
 			message: 'password and username match!',
 			token: 'encrypted token goes here'
 		})
 	} else {
-		res.json({
+		response.json({
 			success: false,
 			message: 'password and username do not match'
 		})
 	}
 
+})
+
+// admin is protected by application level middleware
+app.get('/admin', middleware.checkTokenExists, function(request, response) {
+    response.json({
+        success: true,
+        message: 'Admin Authorized',
+    })
+    
 })
 
 app.listen(port, () => {
